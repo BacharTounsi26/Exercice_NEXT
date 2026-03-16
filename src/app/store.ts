@@ -1,0 +1,48 @@
+import { configureStore, type Middleware } from "@reduxjs/toolkit";
+import cartReducer, {
+  syncCart,
+  addItem,
+  updateQty,
+  removeItem,
+} from "@/features/cart/state/cartSlice";
+import checkoutReducer from "@/features/checkout/state/CheckoutSlice";
+
+const SYNC_ACTIONS: Set<string> = new Set([
+  addItem.type,
+  updateQty.type,
+  removeItem.type,
+]);
+
+function hasActionType(action: unknown): action is { type: string } {
+  return (
+    typeof action === "object" &&
+    action !== null &&
+    "type" in action &&
+    typeof (action as { type: unknown }).type === "string"
+  );
+}
+
+const cartSyncMiddleware: Middleware = (storeAPI) => (next) => (action) => {
+  const result = next(action);
+
+  if (hasActionType(action) && SYNC_ACTIONS.has(action.type)) {
+    const { cart } = storeAPI.getState().cart;
+    if (cart) {
+      storeAPI.dispatch(syncCart(cart) as never);
+    }
+  }
+
+  return result;
+};
+
+export const store = configureStore({
+  reducer: {
+    cart:     cartReducer,
+    checkout: checkoutReducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(cartSyncMiddleware),
+});
+
+export type RootState   = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
