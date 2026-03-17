@@ -37,6 +37,8 @@ export async function createOrder(
     city:      sanitizeText(form.billing.city, 80),
     state:     sanitizeOptionalText(form.billing.state, 80) ?? "",
     postcode:  sanitizeText(form.billing.postcode, 20),
+    email:     sanitizeText(form.billing.email, 254),
+    phone:     sanitizeText(form.billing.phone, 30),
   };
 
   const safeShipping = {
@@ -49,6 +51,8 @@ export async function createOrder(
     city:      sanitizeText(shippingAddress.city, 80),
     state:     sanitizeOptionalText(shippingAddress.state, 80) ?? "",
     postcode:  sanitizeText(shippingAddress.postcode, 20),
+    email:     sanitizeText(shippingAddress.email, 254),
+    phone:     sanitizeText(shippingAddress.phone, 30),
   };
 
   const orderPayload = {

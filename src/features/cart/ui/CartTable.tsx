@@ -4,6 +4,7 @@ import { memo, useCallback } from "react";
 import Link                  from "next/link";
 import { useRouter }         from "next/navigation";
 import { productImagePath }  from "@/shared/utils/productImagePath";
+import FallbackImage         from "@/shared/ui/FallbackImage";
 import type { CartItem as CartItemType } from "@/shared/types/CartItem";
 
 interface CartItemProps {
@@ -12,9 +13,6 @@ interface CartItemProps {
   onRemove:  (id: number) => void;
   isSyncing: boolean;
 }
-
-const PLACEHOLDER =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23f1f5f9'/%3E%3Cpath d='M20 28h40v26H20z' fill='%23cbd5e1'/%3E%3C/svg%3E";
 
 const CartItemRow = memo(function CartItemRow({ item, onUpdate, onRemove, isSyncing }: CartItemProps) {
   const lineTotal = +(item.price * item.qty).toFixed(2);
@@ -38,16 +36,13 @@ const CartItemRow = memo(function CartItemRow({ item, onUpdate, onRemove, isSync
 
       <td className="py-4 px-3 w-24">
         <Link href={`/product/${item.id}`}>
-          <div className="w-16 h-16 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden hover:border-indigo-200 transition-colors">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+          <div className="relative w-16 h-16 bg-slate-50 rounded-xl border border-slate-100 overflow-hidden hover:border-indigo-200 transition-colors">
+            <FallbackImage
               src={productImagePath(item.categoryName, item.imageName)}
               alt={item.name}
-              className="max-w-full max-h-full object-contain p-1"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
-                (e.currentTarget as HTMLImageElement).onerror = null;
-              }}
+              fill
+              className="object-contain"
+              sizes="64px"
             />
           </div>
         </Link>

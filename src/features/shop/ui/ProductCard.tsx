@@ -5,12 +5,10 @@ import Link                   from "next/link";
 import { useProductInfo }     from "@/shared/hooks/useProductInfo";
 import { productImagePath }   from "@/shared/utils/productImagePath";
 import { useCart }            from "@/features/cart/hooks/useCart";
+import FallbackImage          from "@/shared/ui/FallbackImage";
 import type { Product }       from "@/shared/types/Product";
 
 interface ProductCardProps { product: Product }
-
-const PLACEHOLDER =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23f1f5f9'/%3E%3Cpath d='M40 50h40v30H40z' fill='%23cbd5e1' rx='4'/%3E%3Ccircle cx='52' cy='45' r='6' fill='%23cbd5e1'/%3E%3C/svg%3E";
 
 const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
   const { discountedPrice, oldPrice, stars } = useProductInfo(product);
@@ -30,7 +28,7 @@ const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
     <div className="flex flex-col bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg overflow-hidden w-full transition-shadow duration-300 group">
 
       {/* IMAGE */}
-      <Link href={`/product/${product.id}`} className="relative flex-shrink-0 h-56 bg-gray-50 flex items-center justify-center p-4 overflow-hidden">
+      <Link href={`/product/${product.id}`} className="relative flex-shrink-0 h-56 bg-gray-50 overflow-hidden">
         {product.discountRate && product.discountRate > 0 && (
           <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
             -{product.discountRate}%
@@ -41,16 +39,15 @@ const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
             Out of stock
           </span>
         )}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={productImagePath(product.categoryName, product.imageName)}
-          alt={product.name}
-          className="max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
-            (e.currentTarget as HTMLImageElement).onerror = null;
-          }}
-        />
+        <div className="absolute inset-4">
+          <FallbackImage
+            src={productImagePath(product.categoryName, product.imageName)}
+            alt={product.name}
+            fill
+            className="object-contain group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        </div>
       </Link>
 
       {/* CONTENU */}

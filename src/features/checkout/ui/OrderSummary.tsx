@@ -3,6 +3,7 @@
 import { memo } from "react";
 import Link     from "next/link";
 import { productImagePath } from "@/shared/utils/productImagePath";
+import FallbackImage        from "@/shared/ui/FallbackImage";
 import type { CartItem } from "@/shared/types/CartItem";
 
 interface OrderSummaryProps {
@@ -11,9 +12,6 @@ interface OrderSummaryProps {
   tax:      number;
   total:    number;
 }
-
-const PLACEHOLDER =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23f1f5f9'/%3E%3Cpath d='M10 16h28v18H10z' fill='%23cbd5e1'/%3E%3C/svg%3E";
 
 const OrderSummary = memo(function OrderSummary({ items, subTotal, tax, total }: OrderSummaryProps) {
   return (
@@ -26,16 +24,13 @@ const OrderSummary = memo(function OrderSummary({ items, subTotal, tax, total }:
       <div className="divide-y divide-slate-50">
         {items.map((item) => (
           <div key={item.id} className="flex items-center gap-3 px-5 py-3">
-            <div className="w-10 h-10 flex-shrink-0 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="relative w-10 h-10 flex-shrink-0 bg-slate-50 border border-slate-100 rounded-lg overflow-hidden">
+              <FallbackImage
                 src={productImagePath(item.categoryName, item.imageName)}
                 alt={item.name}
-                className="max-w-full max-h-full object-contain p-1"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
-                  (e.currentTarget as HTMLImageElement).onerror = null;
-                }}
+                fill
+                className="object-contain"
+                sizes="40px"
               />
             </div>
             <div className="flex-1 min-w-0">

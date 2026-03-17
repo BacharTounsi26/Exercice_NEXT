@@ -1,6 +1,5 @@
 import type { Product } from "@/shared/types/Product";
 import ProductWidgetItem from "./ProductWidgetItem";
-import Button from "@/shared/ui/Button";
 import Link from "next/link";
 
 type Props = {

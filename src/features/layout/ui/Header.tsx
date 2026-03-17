@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useEffect }     from "react";
+import { memo, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link                              from "next/link";
 import { useAppSelector }                from "@/shared/hooks/useAppStore";
@@ -16,9 +16,10 @@ const Header = memo(function Header() {
 
   const isCheckoutPage = pathname.startsWith("/checkout") || pathname.startsWith("/cart");
   const isShopPage     = pathname.startsWith("/shop");
+  const isSearchPage   = pathname.startsWith("/search");
 
   // Sync local search input with URL ?q= param (setState-during-render pattern)
-  const urlQ = isShopPage ? (searchParams.get("q") ?? "") : "";
+  const urlQ = (isShopPage || isSearchPage) ? (searchParams.get("q") ?? "") : "";
   const [q,        setQ]        = useState(urlQ);
   const [prevUrlQ, setPrevUrlQ] = useState(urlQ);
   if (prevUrlQ !== urlQ) {
@@ -29,10 +30,9 @@ const Header = memo(function Header() {
   const cartTotal = useAppSelector(selectCartTotal);
   const cartCount = useAppSelector(selectCartCount);
 
-  // Defer cart values until after hydration to prevent SSR mismatch
-  // (server renders store as empty; client may already have cart loaded)
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  // Defer cart values until after hydration to prevent SSR mismatch.
+  // useState initializer runs only on the client after mount — safe pattern.
+  const [mounted] = useState(() => typeof window !== "undefined");
   const displayTotal = mounted ? cartTotal : 0;
   const displayCount = mounted ? cartCount : 0;
 
@@ -43,19 +43,20 @@ const Header = memo(function Header() {
     const safe = sanitizeText(debouncedQ, 80);
     if (safe === urlQ) return;
     if (safe.length === 1) return;
-    router.push(`/shop?q=${encodeURIComponent(safe)}`);
+    router.push(`/search?q=${encodeURIComponent(safe)}`);
   }, [debouncedQ, urlQ, router]);
   // ────────────────────────────────────────────────────────────────────────
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     const safeQuery = sanitizeText(q, 80);
-    router.push(`/shop?q=${encodeURIComponent(safeQuery)}`);
+    router.push(`/search?q=${encodeURIComponent(safeQuery)}`);
   }
 
   function handleClear() {
     setQ("");
-    if (pathname.startsWith("/shop")) router.push("/shop");
+    if (isSearchPage) router.push("/search");
+    else if (isShopPage) router.push("/shop");
   }
 
   return (

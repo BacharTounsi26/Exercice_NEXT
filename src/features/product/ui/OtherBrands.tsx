@@ -1,23 +1,15 @@
-"use client";
-
-import { memo, useMemo }  from "react";
-import Link               from "next/link";
-import { imagePath }      from "@/shared/utils/imagePath";
-import type { Category }  from "@/shared/types/Category";
-
-const PLACEHOLDER_BRAND =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23f1f5f9' rx='8'/%3E%3Ccircle cx='24' cy='24' r='10' fill='%23cbd5e1'/%3E%3C/svg%3E";
+import Link              from "next/link";
+import { imagePath }     from "@/shared/utils/imagePath";
+import FallbackImage     from "@/shared/ui/FallbackImage";
+import type { Category } from "@/shared/types/Category";
 
 interface OtherBrandsProps {
   categories:        Category[];
   currentCategoryId: string;
 }
 
-const OtherBrands = memo(function OtherBrands({ categories, currentCategoryId }: OtherBrandsProps) {
-  const others = useMemo(
-    () => categories.filter((c) => c.id !== currentCategoryId),
-    [categories, currentCategoryId]
-  );
+export default function OtherBrands({ categories, currentCategoryId }: OtherBrandsProps) {
+  const others = categories.filter((c) => c.id !== currentCategoryId);
 
   if (others.length === 0) {
     return (
@@ -43,15 +35,13 @@ const OtherBrands = memo(function OtherBrands({ categories, currentCategoryId }:
             href={`/shop/${c.id}`}
             className="flex items-center gap-3 p-3 rounded-xl hover:bg-indigo-50 hover:border-indigo-100 border border-transparent transition-all group"
           >
-            <div className="w-10 h-10 flex-shrink-0 bg-slate-50 rounded-lg flex items-center justify-center overflow-hidden border border-slate-100 group-hover:border-indigo-200 transition-colors">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="relative w-10 h-10 flex-shrink-0 bg-slate-50 rounded-lg overflow-hidden border border-slate-100 group-hover:border-indigo-200 transition-colors">
+              <FallbackImage
                 src={imagePath(c.image)}
                 alt={c.name}
-                className="w-8 h-8 object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = PLACEHOLDER_BRAND;
-                }}
+                fill
+                className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                sizes="40px"
               />
             </div>
             <span className="text-sm font-semibold text-slate-600 group-hover:text-indigo-700 transition-colors">
@@ -68,6 +58,4 @@ const OtherBrands = memo(function OtherBrands({ categories, currentCategoryId }:
       </div>
     </div>
   );
-});
-
-export default OtherBrands;
+}

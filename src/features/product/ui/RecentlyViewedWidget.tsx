@@ -4,21 +4,25 @@ import { useRecentlyViewed }  from "@/shared/hooks/useRecentlyViewed";
 import ProductWidgetSection   from "@/features/home/ui/ProductWidgetSection";
 
 interface Props {
-  currentProductId: number;
+  /** ID du produit à exclure de la liste (page produit) */
+  excludeId?:       number;
+  /** Classe CSS du wrapper — permet de contrôler la largeur selon le contexte */
+  wrapperClassName?: string;
 }
 
-export default function RecentlyViewedWidget({ currentProductId }: Props) {
+export default function RecentlyViewedWidget({ excludeId, wrapperClassName }: Props) {
   const { products } = useRecentlyViewed();
-  const others = products.filter((p) => p.id !== currentProductId);
+  const visible = excludeId
+    ? products.filter((p) => p.id !== excludeId)
+    : products;
 
-  if (others.length === 0) return null;
+  if (visible.length === 0) return null;
 
-  // Fixed-width column — sits to the left of the gallery in the flex-row layout
   return (
-    <div className="w-full lg:w-64 xl:w-72 flex-shrink-0">
+    <div className={wrapperClassName}>
       <ProductWidgetSection
         title="Recently Viewed"
-        products={others}
+        products={visible}
         viewAllHref="/recently-viewed"
       />
     </div>

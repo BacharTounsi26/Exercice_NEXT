@@ -25,7 +25,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
   return (
     <html lang="en">
-      <body className="antialiased min-h-screen flex flex-col bg-slate-50">
+      <body className="antialiased min-h-screen flex flex-col bg-slate-100">
         <StoreProvider>
           {/* Header uses useSearchParams() — must be wrapped in Suspense */}
           <Suspense fallback={<div className="h-16 bg-white border-b border-slate-100" />}>

@@ -10,4 +10,6 @@ export type Address = {
   city:      string;
   state?:    string;
   postcode:  string;
+  email:     string;
+  phone:     string;
 };

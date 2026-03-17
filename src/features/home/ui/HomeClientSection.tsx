@@ -3,26 +3,23 @@
 // Client island for the home page: Top Sellers + Recently Viewed
 // These depend on client-side state (cart, localStorage)
 
-import { useEffect, useState } from "react";
-import { useRecentlyViewed }    from "@/shared/hooks/useRecentlyViewed";
-import { fetchTopSellers }      from "../api/fetchTopSellers";
-import type { Product }        from "@/shared/types/Product";
-import ProductWidgetSection    from "./ProductWidgetSection";
+import { useEffect, useState }  from "react";
+import { fetchTopSellers }       from "../api/fetchTopSellers";
+import type { Product }         from "@/shared/types/Product";
+import ProductWidgetSection     from "./ProductWidgetSection";
+import RecentlyViewedWidget     from "@/features/product/ui/RecentlyViewedWidget";
 
 // Cached in module scope so multiple renders don't re-fetch
 let topSellersCache: Product[] | null = null;
 
 export default function HomeClientSection() {
-  const { products: recentlyViewed } = useRecentlyViewed();
-  const [topSellers, setTopSellers]  = useState<Product[]>(topSellersCache ?? []);
-  const [loadingTS, setLoadingTS]    = useState(!topSellersCache);
+  // Initialise directly from cache to avoid a redundant setState in the effect
+  const [topSellers, setTopSellers]  = useState<Product[]>(() => topSellersCache ?? []);
+  const [loadingTS, setLoadingTS]    = useState(() => !topSellersCache);
 
   useEffect(() => {
-    if (topSellersCache) {
-      setTopSellers(topSellersCache);
-      setLoadingTS(false);
-      return;
-    }
+    // Cache already populated — no need to fetch or update state
+    if (topSellersCache) return;
 
     let alive = true;
     fetchTopSellers()
@@ -60,15 +57,8 @@ export default function HomeClientSection() {
         )}
       </div>
 
-      {recentlyViewed.length > 0 && (
-        <div>
-          <ProductWidgetSection
-            title="Recently Viewed"
-            products={recentlyViewed}
-            viewAllHref="/recently-viewed"
-          />
-        </div>
-      )}
+      {/* Réutilise RecentlyViewedWidget — sans excludeId ni wrapperClassName fixe */}
+      <RecentlyViewedWidget />
     </div>
   );
 }

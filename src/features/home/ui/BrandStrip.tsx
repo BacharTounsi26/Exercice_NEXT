@@ -1,3 +1,4 @@
+import Image               from "next/image";
 import { imagePath }       from "@/shared/utils/imagePath";
 import type { Category }   from "@/shared/types/Category";
 
@@ -21,12 +22,15 @@ export default function BrandStrip({ categories }: Props) {
           key={c.id}
           className="flex items-center justify-center bg-white rounded-lg p-4 hover:shadow-lg hover:scale-105 transition-transform duration-300"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imagePath(c.image)}
-            alt={c.name}
-            className="h-16 md:h-20 w-auto object-contain grayscale hover:grayscale-0 transition duration-300"
-          />
+          <div className="relative h-16 md:h-20 w-full">
+            <Image
+              src={imagePath(c.image)}
+              alt={c.name}
+              fill
+              className="object-contain grayscale hover:grayscale-0 transition duration-300"
+              sizes="(max-width: 768px) 50vw, 20vw"
+            />
+          </div>
         </div>
       ))}
     </div>

@@ -13,8 +13,8 @@ export default function Navbar({ categories, className = "" }: NavbarProps) {
   const pathname = usePathname();
 
   const base   = "rounded px-3 py-1.5 text-[13px] font-medium tracking-wide transition-colors";
-  const active = "bg-indigo-600 text-white shadow-sm";
-  const idle   = "text-slate-600 hover:text-slate-900 hover:bg-slate-100";
+  const active = "bg-white/20 text-white shadow-sm";
+  const idle   = "text-indigo-100 hover:text-white hover:bg-white/10";
 
   const shopMatch      = pathname.match(/^\/shop\/([^/?]+)/);
   const activeCategoryId = shopMatch?.[1];
@@ -22,7 +22,7 @@ export default function Navbar({ categories, className = "" }: NavbarProps) {
   const isHomePath     = pathname === "/";
 
   return (
-    <nav className={`w-full bg-slate-50 border-b border-slate-100 ${className}`}>
+    <nav className={`w-full bg-indigo-700 border-b border-indigo-800 ${className}`}>
       <div className="mx-auto max-w-6xl px-4">
         <ul className="flex flex-wrap items-center gap-1.5 py-2.5">
 

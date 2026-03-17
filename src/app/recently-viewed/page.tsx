@@ -5,8 +5,26 @@ import { useRecentlyViewed } from "@/shared/hooks/useRecentlyViewed";
 import PageHeader            from "@/shared/ui/PageHeader";
 import ProductGrid           from "@/features/shop/ui/ProductGrid";
 
+function GridSkeleton() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="rounded-2xl border border-slate-100 bg-white overflow-hidden">
+          <div className="bg-slate-100 aspect-square" />
+          <div className="p-4 space-y-2">
+            <div className="h-3 bg-slate-200 rounded w-1/3" />
+            <div className="h-4 bg-slate-200 rounded w-4/5" />
+            <div className="h-5 bg-slate-200 rounded w-1/2 mt-1" />
+            <div className="h-9 bg-slate-200 rounded-xl mt-2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function RecentlyViewedPage() {
-  const { products } = useRecentlyViewed();
+  const { products, loading } = useRecentlyViewed();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
@@ -15,7 +33,9 @@ export default function RecentlyViewedPage() {
         subtitle="Products you have visited recently"
       />
 
-      {products.length === 0 ? (
+      {loading ? (
+        <GridSkeleton />
+      ) : products.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4 text-slate-400">
           <svg className="w-16 h-16 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}

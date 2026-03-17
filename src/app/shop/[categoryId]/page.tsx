@@ -1,11 +1,10 @@
-import { fetchProducts }  from "@/features/shop/api/fetchProducts";
+import { fetchProducts }   from "@/features/shop/api/fetchProducts";
 import { fetchCategories } from "@/features/layout/api/fetchCategories";
-import type { SortOption } from "@/features/shop/ui/SortBar";
+import type { SortOption }  from "@/features/shop/ui/SortBar";
 import PageHeader           from "@/shared/ui/PageHeader";
 import Breadcrumb           from "@/features/layout/ui/Breadcrumb";
 import SortBar              from "@/features/shop/ui/SortBar";
-import ProductGrid          from "@/features/shop/ui/ProductGrid";
-import Pagination           from "@/features/shop/ui/Pagination";
+import ShopClientSection    from "@/features/shop/ui/ShopClientSection";
 import { notFound }         from "next/navigation";
 
 interface Params       { categoryId: string }
@@ -44,22 +43,19 @@ export default async function CategoryShopPage({
   const category = categories.find((c) => c.id === categoryId);
   if (!category) notFound();
 
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <Breadcrumb category={{ id: category.id, name: category.name }} />
       <PageHeader title={category.name} />
       <div className="mt-4">
         <SortBar sortOption={sort as SortOption} totalCount={totalCount} />
-        <div className="mt-6">
-          <ProductGrid products={products} />
-        </div>
-        {totalPages > 1 && (
-          <div className="mt-8">
-            <Pagination currentPage={currentPage} totalPages={totalPages} />
-          </div>
-        )}
+        <ShopClientSection
+          initialProducts={products}
+          initialTotal={totalCount}
+          initialPage={currentPage}
+          sort={sort}
+          categoryId={categoryId}
+        />
       </div>
     </div>
   );

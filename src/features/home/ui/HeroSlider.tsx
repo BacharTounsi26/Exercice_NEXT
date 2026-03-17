@@ -1,21 +1,19 @@
-"use client";
-
+import Image               from "next/image";
 import type { Slide }     from "../api/fetchSlides";
 import { imagePath }      from "@/shared/utils/imagePath";
-import { useHeroSlider }  from "../hooks/useHeroSlider";
-import Button             from "@/shared/ui/Button";
+import HeroSliderClient   from "./HeroSliderClient";
 
 type Props = {
-  slides:   Slide[];
-  loading?: boolean;
+  slides: Slide[];
 };
 
-export default function HeroSlider({ slides, loading = false }: Props) {
-  const { current, next, prev } = useHeroSlider(slides.length);
-
-  if (loading)
-    return <div className="h-64 md:h-96 bg-slate-200 animate-pulse rounded" />;
-
+/**
+ * Carrousel SSR : toutes les images sont rendues côté serveur.
+ * - 1ère image : priority (préchargée, LCP optimisé)
+ * - Images suivantes : loading="lazy"
+ * - Contrôles prev/next : délégués au client island HeroSliderClient
+ */
+export default function HeroSlider({ slides }: Props) {
   if (slides.length === 0) {
     return (
       <div className="h-64 md:h-96 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-500 text-sm">
@@ -26,41 +24,25 @@ export default function HeroSlider({ slides, loading = false }: Props) {
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg">
-      <div
-        className="flex transition-transform duration-700 ease-in-out"
-        style={{ transform: `translateX(-${current * 100}%)` }}
-      >
-        {slides.map((s) => (
-          <div key={s.id} className="min-w-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+      {/* Le client island injecte la classe .hero-track { transform } via <style> */}
+      <div className="hero-track flex transition-transform duration-700 ease-in-out">
+        {slides.map((s, index) => (
+          <div key={s.id} className="relative min-w-full h-64 md:h-96">
+            <Image
               src={imagePath(s.image)}
               alt={s.title ?? "Slide"}
-              className="h-64 w-full object-cover md:h-96"
+              fill
+              className="object-cover"
+              priority={index === 0}
+              loading={index === 0 ? undefined : "lazy"}
+              sizes="100vw"
             />
           </div>
         ))}
       </div>
 
-      <Button
-        onClick={prev}
-        variant="plain"
-        size="none"
-        radius="md"
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/70 px-3 py-1 rounded text-xl"
-      >
-        ‹
-      </Button>
-
-      <Button
-        onClick={next}
-        variant="plain"
-        size="none"
-        radius="md"
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/70 px-3 py-1 rounded text-xl"
-      >
-        ›
-      </Button>
+      {/* Contrôles interactifs — client island */}
+      <HeroSliderClient count={slides.length} />
     </div>
   );
 }

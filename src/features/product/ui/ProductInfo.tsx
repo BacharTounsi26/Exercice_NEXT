@@ -1,25 +1,26 @@
-"use client";
-
-import { memo, useState } from "react";
-import { useProductInfo } from "@/shared/hooks/useProductInfo";
-import { useCart }        from "@/features/cart/hooks/useCart";
-import type { Product }   from "@/shared/types/Product";
+import AddToCartControls from "@/features/product/ui/AddToCartControls";
+import type { Product }  from "@/shared/types/Product";
 
 interface Props {
   product: Product;
 }
 
-const ProductInfo = memo(function ProductInfo({ product }: Props) {
-  const { discountedPrice, oldPrice, stars } = useProductInfo(product);
-  const { add } = useCart();
-  const [qty, setQty] = useState(1);
+function computeProductInfo(product: Product) {
+  const discountedPrice = product.discountRate
+    ? +(product.price * (1 - product.discountRate / 100)).toFixed(2)
+    : product.price;
+  const oldPrice = product.discountRate ? product.price : null;
+  const stars    = Array.from({ length: 5 }, (_, i) => i < (product.review || 0));
+  return { discountedPrice, oldPrice, stars };
+}
 
+/**
+ * Affichage des informations produit — SSR (Server Component).
+ * Seule la zone quantité + panier est déléguée à AddToCartControls (CSR).
+ */
+export default function ProductInfo({ product }: Props) {
+  const { discountedPrice, oldPrice, stars } = computeProductInfo(product);
   const inStock = product.inStock !== false;
-
-  function handleAddToCart() {
-    if (!inStock) return;
-    add(product, qty);
-  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -64,34 +65,9 @@ const ProductInfo = memo(function ProductInfo({ product }: Props) {
         </span>
       </div>
 
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden">
-          <button
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
-            disabled={qty <= 1}
-            className="w-10 h-11 flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:text-slate-300 transition-colors"
-          >−</button>
-          <span className="w-10 text-center font-semibold text-slate-800 text-sm">{qty}</span>
-          <button
-            onClick={() => setQty((q) => Math.min(99, q + 1))}
-            disabled={qty >= 99}
-            className="w-10 h-11 flex items-center justify-center text-slate-600 hover:bg-slate-50 disabled:text-slate-300 transition-colors"
-          >+</button>
-        </div>
+      {/* Sélection quantité + bouton panier — Client Component isolé */}
+      <AddToCartControls product={product} />
 
-        <button
-          onClick={handleAddToCart}
-          disabled={!inStock}
-          className="flex-1 min-w-[180px] h-11 rounded-xl font-semibold text-sm bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors shadow-md flex items-center justify-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2Zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2ZM7.16 14.26l.03.01L19 15a1 1 0 0 0 .98-.8l1.71-8.58A1 1 0 0 0 20.71 4H6.21l-.38-2H2v2h2l2.6 12.01a3.001 3.001 0 1 0 5.8.99h4.8a3.001 3.001 0 1 0 0-2H10.4a3 3 0 0 0-3.24-2.74Z" />
-          </svg>
-          {inStock ? "Add to cart" : "Unavailable"}
-        </button>
-      </div>
     </div>
   );
-});
-
-export default ProductInfo;
+}

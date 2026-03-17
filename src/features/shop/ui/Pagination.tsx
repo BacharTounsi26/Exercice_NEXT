@@ -6,6 +6,8 @@ import { memo } from "react";
 interface PaginationProps {
   currentPage: number;
   totalPages:  number;
+  /** Si fourni → mode CSR (callback direct). Sinon → mode SSR (router.push) */
+  onGoTo?:     (page: number) => void;
 }
 
 function buildRange(current: number, total: number): (number | null)[] {
@@ -18,7 +20,7 @@ function buildRange(current: number, total: number): (number | null)[] {
   return pages;
 }
 
-const Pagination = memo(function Pagination({ currentPage, totalPages }: PaginationProps) {
+const Pagination = memo(function Pagination({ currentPage, totalPages, onGoTo }: PaginationProps) {
   const router       = useRouter();
   const pathname     = usePathname();
   const searchParams = useSearchParams();
@@ -26,6 +28,12 @@ const Pagination = memo(function Pagination({ currentPage, totalPages }: Paginat
   if (totalPages <= 1) return null;
 
   function goTo(page: number) {
+    if (onGoTo) {
+      // Mode CSR — le parent gère le fetch et la mise à jour de l'URL
+      onGoTo(page);
+      return;
+    }
+    // Mode SSR — navigation Next.js (Server Component re-rendu)
     const params = new URLSearchParams(searchParams.toString());
     if (page === 1) params.delete("page");
     else            params.set("page", String(page));

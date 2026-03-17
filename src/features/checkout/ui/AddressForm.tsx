@@ -113,6 +113,18 @@ const AddressForm = memo(function AddressForm({ prefix, values: v, onChange, err
         <Field id={`${prefix}_postcode`} value={v.postcode ?? ""} onChange={(val) => onChange("postcode", val)} error={e.postcode} />
       </div>
 
+      {/* Email */}
+      <div>
+        <Label htmlFor={`${prefix}_email`} text="Email" required />
+        <Field id={`${prefix}_email`} type="email" value={v.email ?? ""} onChange={(val) => onChange("email", val)} error={e.email} placeholder="you@example.com" />
+      </div>
+
+      {/* Phone */}
+      <div>
+        <Label htmlFor={`${prefix}_phone`} text="Phone" required />
+        <Field id={`${prefix}_phone`} type="tel" value={v.phone ?? ""} onChange={(val) => onChange("phone", val)} error={e.phone} placeholder="+33 6 00 00 00 00" />
+      </div>
+
     </div>
   );
 });

@@ -3,6 +3,7 @@
 import { memo }             from "react";
 import Link                 from "next/link";
 import { productImagePath } from "@/shared/utils/productImagePath";
+import FallbackImage        from "@/shared/ui/FallbackImage";
 import type { Product }     from "@/shared/types/Product";
 
 interface CartSummaryProps {
@@ -13,9 +14,6 @@ interface CartSummaryProps {
   crossSells?:        Product[];
   crossSellsLoading?: boolean;
 }
-
-const PLACEHOLDER =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23f1f5f9'/%3E%3Cpath d='M20 28h40v26H20z' fill='%23cbd5e1'/%3E%3C/svg%3E";
 
 const CartSummary = memo(function CartSummary({
   subTotal, tax, total, crossSells = [], crossSellsLoading = false,
@@ -75,16 +73,13 @@ const CartSummary = memo(function CartSummary({
                   href={`/product/${p.id}`}
                   className="flex items-center gap-3 p-3 rounded-xl border border-transparent hover:bg-indigo-50 hover:border-indigo-100 transition-all group"
                 >
-                  <div className="w-14 h-14 flex-shrink-0 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center overflow-hidden group-hover:border-indigo-200 transition-colors">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                  <div className="relative w-14 h-14 flex-shrink-0 bg-slate-50 border border-slate-100 rounded-lg overflow-hidden group-hover:border-indigo-200 transition-colors">
+                    <FallbackImage
                       src={productImagePath(p.categoryName, p.imageName)}
                       alt={p.name}
-                      className="max-w-full max-h-full object-contain p-1 group-hover:scale-105 transition-transform"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
-                        (e.currentTarget as HTMLImageElement).onerror = null;
-                      }}
+                      fill
+                      className="object-contain group-hover:scale-105 transition-transform"
+                      sizes="56px"
                     />
                   </div>
                   <div className="flex-1 min-w-0">

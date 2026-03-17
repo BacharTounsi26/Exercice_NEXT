@@ -42,7 +42,10 @@ export default async function ProductPage({
       {/* Main layout: [Recently Viewed | Gallery | Info]
           RecentlyViewedWidget returns null when empty → gallery+info fills full width */}
       <div className="flex flex-col lg:flex-row gap-8">
-        <RecentlyViewedWidget currentProductId={product.id} />
+        <RecentlyViewedWidget
+          excludeId={product.id}
+          wrapperClassName="w-full lg:w-64 xl:w-72 flex-shrink-0"
+        />
 
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-10">
           <ProductGallery

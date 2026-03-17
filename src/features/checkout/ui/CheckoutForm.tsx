@@ -21,7 +21,7 @@ function emptyAddress(): Partial<Address> {
 }
 
 type AddressErrors = Partial<Record<keyof Address, string>>;
-const REQUIRED_FIELDS: (keyof Address)[] = ["civility", "firstName", "lastName", "address1", "city", "postcode"];
+const REQUIRED_FIELDS: (keyof Address)[] = ["civility", "firstName", "lastName", "address1", "city", "postcode", "email", "phone"];
 
 function validateAddress(addr: Partial<Address>): AddressErrors {
   const errors: AddressErrors = {};
