@@ -41,6 +41,10 @@ export async function createOrder(
     phone:     sanitizeText(form.billing.phone, 30),
   };
 
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safeBilling.email)) {
+    throw new Error("Invalid email address");
+  }
+
   const safeShipping = {
     ...shippingAddress,
     firstName: sanitizeText(shippingAddress.firstName, 80),

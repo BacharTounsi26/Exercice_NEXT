@@ -2,11 +2,11 @@
 
 import { useCallback }                    from "react";
 import { useAppDispatch, useAppSelector } from "@/shared/hooks/useAppStore";
-import { submitOrder, resetCheckout }     from "../state/CheckoutSlice";
+import { submitOrder, resetCheckout }     from "../state/checkoutSlice";
 import {
   selectCheckoutOrder, selectCheckoutError,
   selectCheckoutStatus, selectIsSubmitting, selectIsSuccess,
-} from "../state/Selectors";
+} from "../state/selectors";
 import { selectCart }             from "@/features/cart/state/selectors";
 import type { CheckoutFormData }  from "@/shared/types/CheckoutFormData";
 

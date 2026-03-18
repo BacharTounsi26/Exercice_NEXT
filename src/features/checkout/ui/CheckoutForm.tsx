@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useCallback } from "react";
+import React, { memo, useState, useCallback } from "react";
 import AddressForm    from "./AddressForm";
 import PaymentMethods from "./PaymentMethods";
 import type { Address }          from "@/shared/types/Address";
@@ -55,15 +55,19 @@ const CheckoutForm = memo(function CheckoutForm({ onSubmit, isSubmitting }: Chec
   const [paymentMethod,   setPaymentMethod]   = useState<PaymentMethod>("bank_transfer");
   const [billingErrors,   setBillingErrors]   = useState<AddressErrors>({});
   const [shippingErrors,  setShippingErrors]  = useState<AddressErrors>({});
+  const [hasFormError,    setHasFormError]    = useState(false);
+  const formRef = React.useRef<HTMLDivElement>(null);
 
   const updateBilling = useCallback((field: keyof Address, value: string) => {
     setBilling((prev) => ({ ...prev, [field]: value }));
     setBillingErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+    setHasFormError(false);
   }, []);
 
   const updateShipping = useCallback((field: keyof Address, value: string) => {
     setShipping((prev) => ({ ...prev, [field]: value }));
     setShippingErrors((prev) => { const e = { ...prev }; delete e[field]; return e; });
+    setHasFormError(false);
   }, []);
 
   function handleSubmit() {
@@ -71,7 +75,16 @@ const CheckoutForm = memo(function CheckoutForm({ onSubmit, isSubmitting }: Chec
     const sErrors = shipToDifferent ? validateAddress(shipping) : {};
     setBillingErrors(bErrors);
     setShippingErrors(sErrors);
-    if (hasErrors(bErrors) || hasErrors(sErrors)) return;
+    if (hasErrors(bErrors) || hasErrors(sErrors)) {
+      setHasFormError(true);
+      // Scroll to the first invalid field so the user can see it
+      requestAnimationFrame(() => {
+        const firstError = formRef.current?.querySelector<HTMLElement>(".text-red-500");
+        firstError?.closest("div")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      return;
+    }
+    setHasFormError(false);
 
     onSubmit({
       billing:        billing as Address,
@@ -83,7 +96,7 @@ const CheckoutForm = memo(function CheckoutForm({ onSubmit, isSubmitting }: Chec
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div ref={formRef} className="flex flex-col gap-6">
 
       <Section title="Billing address">
         <AddressForm prefix="billing" values={billing} onChange={updateBilling} errors={billingErrors} />
@@ -123,6 +136,12 @@ const CheckoutForm = memo(function CheckoutForm({ onSubmit, isSubmitting }: Chec
       <Section title="Payment method">
         <PaymentMethods value={paymentMethod} onChange={setPaymentMethod} />
       </Section>
+
+      {hasFormError && (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm text-red-700">
+          Please fix the errors highlighted above before placing your order.
+        </p>
+      )}
 
       <button
         onClick={handleSubmit}

@@ -1,4 +1,6 @@
 import { notFound }              from "next/navigation";
+import type { Metadata }         from "next";
+import { Suspense }              from "react";
 import { fetchProductById }      from "@/features/product/api/fetchProductById";
 import { fetchCategories }       from "@/features/layout/api/fetchCategories";
 import Breadcrumb                from "@/features/layout/ui/Breadcrumb";
@@ -10,6 +12,21 @@ import RecentlyViewedTracker     from "@/features/product/ui/RecentlyViewedTrack
 import RecentlyViewedWidget      from "@/features/product/ui/RecentlyViewedWidget";
 
 interface Params { id: string }
+
+// Next.js deduplicates the fetch — no extra network call vs the page itself.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const product = await fetchProductById(id).catch(() => null);
+  if (!product) return { title: "Product not found" };
+  return {
+    title:       product.name,
+    description: `Buy ${product.name} at the best price on ShopMobile.`,
+  };
+}
 
 export default async function ProductPage({
   params,
@@ -42,10 +59,12 @@ export default async function ProductPage({
       {/* Main layout: [Recently Viewed | Gallery | Info]
           RecentlyViewedWidget returns null when empty → gallery+info fills full width */}
       <div className="flex flex-col lg:flex-row gap-8">
-        <RecentlyViewedWidget
-          excludeId={product.id}
-          wrapperClassName="w-full lg:w-64 xl:w-72 flex-shrink-0"
-        />
+        <Suspense fallback={null}>
+          <RecentlyViewedWidget
+            excludeId={product.id}
+            wrapperClassName="w-full lg:w-64 xl:w-72 flex-shrink-0"
+          />
+        </Suspense>
 
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-10">
           <ProductGallery

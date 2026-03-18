@@ -1,5 +1,5 @@
 import { createSelector } from "@reduxjs/toolkit";
-import type { RootState } from "@/app/store";
+import type { RootState } from "@/store/store";
 
 export const selectCheckoutState  = (state: RootState) => state.checkout;
 export const selectCheckoutOrder  = (state: RootState) => state.checkout.order;

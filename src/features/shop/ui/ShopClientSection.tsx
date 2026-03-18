@@ -5,18 +5,9 @@ import { fetchProducts }         from "@/features/shop/api/fetchProducts";
 import ProductGrid               from "@/features/shop/ui/ProductGrid";
 import Pagination                from "@/features/shop/ui/Pagination";
 import type { Product }          from "@/shared/types/Product";
+import { parseSortOption }       from "@/shared/utils/parseSortOption";
 
 const ITEMS_PER_PAGE = 12;
-
-function parseSortOption(raw: string): { _sort?: string; _order?: "asc" | "desc" } {
-  if (!raw) return {};
-  const lastUnderscore = raw.lastIndexOf("_");
-  if (lastUnderscore < 0) return { _sort: raw };
-  return {
-    _sort:  raw.slice(0, lastUnderscore),
-    _order: raw.slice(lastUnderscore + 1) as "asc" | "desc",
-  };
-}
 
 interface Props {
   initialProducts: Product[];

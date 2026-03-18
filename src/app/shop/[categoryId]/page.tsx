@@ -1,24 +1,33 @@
 import { fetchProducts }   from "@/features/shop/api/fetchProducts";
 import { fetchCategories } from "@/features/layout/api/fetchCategories";
 import type { SortOption }  from "@/features/shop/ui/SortBar";
+import type { Metadata }    from "next";
 import PageHeader           from "@/shared/ui/PageHeader";
 import Breadcrumb           from "@/features/layout/ui/Breadcrumb";
 import SortBar              from "@/features/shop/ui/SortBar";
 import ShopClientSection    from "@/features/shop/ui/ShopClientSection";
 import { notFound }         from "next/navigation";
+import { parseSortOption }  from "@/shared/utils/parseSortOption";
+import { Suspense }         from "react";
 
 interface Params       { categoryId: string }
 interface SearchParams { sort?: string; page?: string }
 
 const ITEMS_PER_PAGE = 12;
 
-function parseSortOption(raw: string): { _sort?: string; _order?: "asc" | "desc" } {
-  if (!raw) return {};
-  const lastUnderscore = raw.lastIndexOf("_");
-  if (lastUnderscore < 0) return { _sort: raw };
+// Next.js deduplicates the fetch — fetchCategories is ISR-cached, no extra call.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { categoryId } = await params;
+  const categories = await fetchCategories().catch(() => []);
+  const category   = categories.find((c) => c.id === categoryId);
+  if (!category) return { title: "Category" };
   return {
-    _sort:  raw.slice(0, lastUnderscore),
-    _order: raw.slice(lastUnderscore + 1) as "asc" | "desc",
+    title:       category.name,
+    description: `Browse all ${category.name} products on ShopMobile.`,
   };
 }
 
@@ -48,8 +57,11 @@ export default async function CategoryShopPage({
       <Breadcrumb category={{ id: category.id, name: category.name }} />
       <PageHeader title={category.name} />
       <div className="mt-4">
-        <SortBar sortOption={sort as SortOption} totalCount={totalCount} />
+        <Suspense fallback={<div className="h-12 rounded-xl bg-slate-100 animate-pulse mb-6" />}>
+          <SortBar sortOption={sort as SortOption} totalCount={totalCount} />
+        </Suspense>
         <ShopClientSection
+          key={sort}
           initialProducts={products}
           initialTotal={totalCount}
           initialPage={currentPage}

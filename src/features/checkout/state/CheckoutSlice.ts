@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createOrder }   from "../api/createOrder";
-import { deleteCart }    from "@/features/cart/api/deleteCart";
-import { resetCart }     from "@/features/cart/state/cartSlice";
-import { initCart }      from "@/features/cart/state/cartSlice";
+import { createOrder }    from "../api/createOrder";
+import { clearCartAsync } from "@/features/cart/state/cartSlice";
 import type { Cart }             from "@/shared/types/Cart";
 import type { CheckoutFormData } from "@/shared/types/CheckoutFormData";
 import type { Order }            from "@/shared/types/Order";
@@ -26,9 +24,10 @@ export const submitOrder = createAsyncThunk<
   "checkout/submitOrder",
   async ({ cart, form }, { dispatch }) => {
     const order = await createOrder(cart, form);
-    await deleteCart(cart.id);
-    dispatch(resetCart());
-    await dispatch(initCart());
+    // clearCartAsync : supprime l'ancien panier ET crée un nouveau de façon atomique.
+    // Évite le state null transitoire de resetCart() qui pouvait déclencher la
+    // redirection vers /cart ou causer des race conditions avec cartSyncMiddleware.
+    await dispatch(clearCartAsync(cart.id));
     return order;
   }
 );

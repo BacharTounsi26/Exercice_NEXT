@@ -16,7 +16,7 @@ interface CartSummaryProps {
 }
 
 const CartSummary = memo(function CartSummary({
-  subTotal, tax, total, crossSells = [], crossSellsLoading = false,
+  subTotal, tax, total, isSyncing, crossSells = [], crossSellsLoading = false,
 }: CartSummaryProps) {
   return (
     <div className="flex flex-col gap-5">
@@ -50,6 +50,15 @@ const CartSummary = memo(function CartSummary({
             <span className="font-bold text-slate-800">Total (incl. tax)</span>
             <span className="font-bold text-xl text-indigo-600">{total.toFixed(2)} €</span>
           </div>
+          <Link
+            href="/checkout"
+            className={`mt-1 block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-colors${
+              isSyncing ? " pointer-events-none opacity-50" : ""
+            }`}
+            aria-disabled={isSyncing}
+          >
+            {isSyncing ? "Syncing…" : "Proceed to Checkout"}
+          </Link>
         </div>
       </div>
 

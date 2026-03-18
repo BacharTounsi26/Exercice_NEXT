@@ -5,7 +5,7 @@ import cartReducer, {
   updateQty,
   removeItem,
 } from "@/features/cart/state/cartSlice";
-import checkoutReducer from "@/features/checkout/state/CheckoutSlice";
+import checkoutReducer from "@/features/checkout/state/checkoutSlice";
 
 const SYNC_ACTIONS: Set<string> = new Set([
   addItem.type,
@@ -22,14 +22,22 @@ function hasActionType(action: unknown): action is { type: string } {
   );
 }
 
+// Debounce cart sync to avoid race conditions when the user clicks +/- rapidly.
+// Only the last action within 500ms triggers the PUT request.
+let syncTimer: ReturnType<typeof setTimeout> | null = null;
+
 const cartSyncMiddleware: Middleware = (storeAPI) => (next) => (action) => {
   const result = next(action);
 
   if (hasActionType(action) && SYNC_ACTIONS.has(action.type)) {
-    const { cart } = storeAPI.getState().cart;
-    if (cart) {
-      storeAPI.dispatch(syncCart(cart) as never);
-    }
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => {
+      syncTimer = null;
+      const { cart } = storeAPI.getState().cart;
+      if (cart) {
+        storeAPI.dispatch(syncCart(cart) as never);
+      }
+    }, 500);
   }
 
   return result;

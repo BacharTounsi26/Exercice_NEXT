@@ -31,8 +31,9 @@ const Header = memo(function Header() {
   const cartCount = useAppSelector(selectCartCount);
 
   // Defer cart values until after hydration to prevent SSR mismatch.
-  // useState initializer runs only on the client after mount — safe pattern.
-  const [mounted] = useState(() => typeof window !== "undefined");
+  // Initialize to false on both server and client; flip only after mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const displayTotal = mounted ? cartTotal : 0;
   const displayCount = mounted ? cartCount : 0;
 
