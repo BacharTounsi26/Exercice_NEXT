@@ -29,7 +29,7 @@ const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
 
       {/* IMAGE */}
       <Link href={`/product/${product.id}`} className="relative flex-shrink-0 h-56 bg-gray-50 overflow-hidden">
-        {product.discountRate && product.discountRate > 0 && (
+        {product.discountRate != null && product.discountRate > 0 && (
           <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
             -{product.discountRate}%
           </span>

@@ -21,6 +21,10 @@ export default function Navbar({ categories, className = "" }: NavbarProps) {
   const isShopPath     = pathname.startsWith("/shop");
   const isHomePath     = pathname === "/";
 
+  if (pathname.startsWith("/cart") || pathname.startsWith("/checkout")) {
+    return null;
+  }
+
   return (
     <nav className={`w-full bg-indigo-700 border-b border-indigo-800 ${className}`}>
       <div className="mx-auto max-w-6xl px-4">

@@ -36,8 +36,8 @@ export default async function ShopPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <Breadcrumb />
-      <PageHeader title={q ? `Results for "${q}"` : "Shop"} />
+      <Breadcrumb category={{ id: "shop", name: "All Products" }} />
+      <PageHeader title={q ? `Results for "${q}"` : "All Products"} />
       <div className="mt-4">
         <Suspense fallback={<div className="h-12 rounded-xl bg-slate-100 animate-pulse mb-6" />}>
           <SortBar sortOption={sort as SortOption} totalCount={totalCount} />
